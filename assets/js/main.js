@@ -187,6 +187,7 @@
   function closeMenu() {
     menu.classList.remove("is-open");
     menu.setAttribute("aria-hidden", "true");
+    menu.inert = true;
     burger.setAttribute("aria-expanded", "false");
     lenis && lenis.start();
   }
@@ -195,6 +196,7 @@
     if (!open) return closeMenu();
     menu.classList.add("is-open");
     menu.setAttribute("aria-hidden", "false");
+    menu.inert = false;
     burger.setAttribute("aria-expanded", "true");
     lenis && lenis.stop();
   });
@@ -252,12 +254,17 @@
     // Scroll Expansion (after 21st.dev @arunachalam/scroll-expansion-hero):
     // instead of hijacking the wheel, the section is pinned and the progress is scroll-scrubbed.
     const mobile = window.innerWidth < 768;
+    // Animated with clip-path instead of width/height so the browser never re-lays out the page.
+    const cardInset = () => {
+      const w = mobile ? 220 : 300, h = mobile ? 320 : 400;
+      const y = Math.max(0, (window.innerHeight - h) / 2), x = Math.max(0, (window.innerWidth - w) / 2);
+      return `inset(${y}px ${x}px ${y}px ${x}px round 18px)`;
+    };
     gsap.timeline({
-      scrollTrigger: { trigger: "[data-expand]", pin: "[data-expand-pin]", start: "top top", end: "+=130%", scrub: 0.6, anticipatePin: 1, refreshPriority: -1 },
+      scrollTrigger: { trigger: "[data-expand]", pin: "[data-expand-pin]", start: "top top", end: "+=130%", scrub: 0.6, anticipatePin: 1, refreshPriority: -1, invalidateOnRefresh: true },
     })
-      .fromTo("[data-expand-media]",
-        { width: mobile ? 220 : 300, height: mobile ? 320 : 400, borderRadius: 18 },
-        { width: () => window.innerWidth, height: () => window.innerHeight, borderRadius: 0, ease: "power2.inOut" }, 0)
+      .fromTo("[data-expand-media]", { clipPath: cardInset }, { clipPath: "inset(0px 0px 0px 0px round 0px)", ease: "power2.inOut" }, 0)
+      .fromTo("[data-expand-media] img", { scale: 1.25 }, { scale: 1, ease: "power2.inOut" }, 0)
       .to("[data-expand-bg]", { opacity: 0, ease: "none" }, 0)
       .to("[data-expand-shade]", { opacity: 0.25, ease: "none" }, 0)
       .to("[data-expand-l]", { xPercent: mobile ? -60 : -90, ease: "power2.in" }, 0)
@@ -301,7 +308,7 @@
     svg.setAttribute("viewBox", "0 0 696 316");
     svg.setAttribute("preserveAspectRatio", "xMidYMid slice");
     [1, -1].forEach((position) => {
-      for (let i = 0; i < 36; i++) {
+      for (let i = 0; i < 36; i += 2) { // every second path: same look, half the paint cost
         const o = (n) => n - i * 5 * position;
         const d = `M${-o(380)} ${-(189 + i * 6)}C${-o(380)} ${-(189 + i * 6)} ${-o(312)} ${216 - i * 6} ${o(152)} ${343 - i * 6}C${o(616)} ${470 - i * 6} ${o(684)} ${875 - i * 6} ${o(684)} ${875 - i * 6}`;
         const path = document.createElementNS(NS, "path");
@@ -315,6 +322,8 @@
       }
     });
     host.appendChild(svg);
+    // only animate while the section is on screen
+    new IntersectionObserver(([en]) => host.classList.toggle("is-paused", !en.isIntersecting)).observe(host);
   });
 
   /* ---------------- Marquee speed follows scroll velocity ---------------- */
@@ -346,33 +355,49 @@
     });
   }
 
-  /* ---------------- Magnetic buttons ---------------- */
+  /* ---------------- Magnetic buttons & card tilt (lerped, so they ease instead of snapping) ---------------- */
+  function follower(el, apply) {
+    const s = { x: 0, y: 0, tx: 0, ty: 0, raf: 0 };
+    const tick = () => {
+      s.x += (s.tx - s.x) * 0.14; s.y += (s.ty - s.y) * 0.14;
+      apply(s.x, s.y);
+      if (Math.abs(s.tx - s.x) > 0.001 || Math.abs(s.ty - s.y) > 0.001) s.raf = requestAnimationFrame(tick);
+      else s.raf = 0;
+    };
+    return (x, y) => { s.tx = x; s.ty = y; if (!s.raf) s.raf = requestAnimationFrame(tick); };
+  }
   if (fine && !reduced) {
     $$("[data-magnetic]").forEach((el) => {
-      el.addEventListener("mousemove", (e) => {
+      const set = follower(el, (x, y) => (el.style.transform = `translate3d(${x}px, ${y}px, 0)`));
+      el.addEventListener("pointermove", (e) => {
         const r = el.getBoundingClientRect();
-        const x = e.clientX - r.left - r.width / 2, y = e.clientY - r.top - r.height / 2;
-        el.style.transform = `translate(${x * 0.25}px, ${y * 0.35}px)`;
+        set((e.clientX - r.left - r.width / 2) * 0.25, (e.clientY - r.top - r.height / 2) * 0.35);
       });
-      el.addEventListener("mouseleave", () => {
-        el.style.transition = "transform .7s cubic-bezier(.22,1,.36,1)";
-        el.style.transform = "";
-        setTimeout(() => (el.style.transition = ""), 700);
-      });
+      el.addEventListener("pointerleave", () => set(0, 0));
     });
 
-    // card tilt + glow follow
     $$("[data-tilt]").forEach((card) => {
-      card.addEventListener("mousemove", (e) => {
+      const glow = $(".card__glow", card);
+      const set = follower(card, (px, py) => {
+        card.style.transform = `perspective(900px) rotateY(${px * 8}deg) rotateX(${-py * 8}deg)`;
+      });
+      card.addEventListener("pointermove", (e) => {
         const r = card.getBoundingClientRect();
         const px = (e.clientX - r.left) / r.width, py = (e.clientY - r.top) / r.height;
-        card.style.setProperty("--mx", `${px * 100}%`);
-        card.style.setProperty("--my", `${py * 100}%`);
-        card.style.transform = `perspective(900px) rotateY(${(px - 0.5) * 8}deg) rotateX(${(0.5 - py) * 8}deg)`;
+        glow.style.transform = `translate3d(${e.clientX - r.left}px, ${e.clientY - r.top}px, 0) translate(-50%, -50%)`;
+        set(px - 0.5, py - 0.5);
       });
-      card.addEventListener("mouseleave", () => (card.style.transform = ""));
+      card.addEventListener("pointerleave", () => set(0, 0));
     });
   }
+
+  /* ---------------- Scroll spy: mark the section you're in ---------------- */
+  const navLinks = $$('.nav__links a[href^="#"]');
+  const spy = new IntersectionObserver((entries) => entries.forEach((en) => {
+    if (!en.isIntersecting) return;
+    navLinks.forEach((a) => a.classList.toggle("is-active", a.getAttribute("href") === "#" + en.target.id));
+  }), { rootMargin: "-45% 0px -50% 0px" });
+  navLinks.forEach((a) => { const s = $(a.getAttribute("href")); s && spy.observe(s); });
 
   /* ---------------- Canvas: starfield ---------------- */
   function canvasLoop(canvas, setup, draw) {
@@ -487,19 +512,32 @@
   dateInput.min = todayISO;
   dateInput.value = todayISO;
   let pax = "2";
-  $$("[data-pax] button").forEach((b) =>
-    b.addEventListener("click", () => {
-      $$("[data-pax] button").forEach((x) => { x.classList.remove("is-active"); x.setAttribute("aria-checked", "false"); });
-      b.classList.add("is-active"); b.setAttribute("aria-checked", "true");
-      pax = b.textContent;
-    })
-  );
+  const paxBtns = $$("[data-pax] button");
+  const selectPax = (b) => {
+    paxBtns.forEach((x) => { x.classList.remove("is-active"); x.setAttribute("aria-checked", "false"); x.tabIndex = -1; });
+    b.classList.add("is-active"); b.setAttribute("aria-checked", "true"); b.tabIndex = 0;
+    pax = b.textContent;
+  };
+  paxBtns.forEach((b, i) => {
+    b.tabIndex = b.classList.contains("is-active") ? 0 : -1;
+    b.addEventListener("click", () => selectPax(b));
+    b.addEventListener("keydown", (e) => {
+      const step = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 }[e.key];
+      if (!step) return;
+      e.preventDefault();
+      const next = paxBtns[(i + step + paxBtns.length) % paxBtns.length];
+      selectPax(next); next.focus();
+    });
+  });
   form.addEventListener("submit", (e) => {
     e.preventDefault();
     const note = $("[data-form-note]");
     const name = $("#f-name");
     const valid = name.value.trim().length > 1 && dateInput.value && $("#f-time").value;
-    name.closest(".field").classList.toggle("is-invalid", name.value.trim().length < 2);
+    const bad = name.value.trim().length < 2;
+    name.closest(".field").classList.toggle("is-invalid", bad);
+    name.setAttribute("aria-invalid", String(bad));
+    if (bad) name.focus();
     if (!valid) { note.textContent = "Bitte Name, Datum und Uhrzeit angeben."; return; }
     const d = new Date(dateInput.value + "T12:00:00");
     const dateStr = d.toLocaleDateString("de-CH", { weekday: "long", day: "2-digit", month: "long" });

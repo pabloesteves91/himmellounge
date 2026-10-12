@@ -2,13 +2,19 @@
 <html lang="de">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Himmellounge — Rooftop Shisha Lounge Winterthur</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="dark">
+  <title>Himmellounge Winterthur — Rooftop Shisha Lounge &amp; Bar</title>
   <meta name="description" content="Himmellounge Winterthur: Prestige Shisha, Signature Drinks und Food auf der Rooftop-Terrasse über den Dächern der Stadt. Täglich ab 15/16 Uhr geöffnet.">
   <meta name="theme-color" content="#07080c">
   <meta property="og:title" content="Himmellounge — Über den Dächern von Winterthur">
   <meta property="og:description" content="Prestige Shisha, Signature Drinks & Rooftop-Terrasse in Winterthur.">
-  <meta property="og:image" content="assets/img/rooftop.jpg">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="de_CH">
+  <meta property="og:url" content="https://www.himmellounge.ch/">
+  <meta property="og:image" content="https://www.himmellounge.ch/assets/img/rooftop.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="canonical" href="https://www.himmellounge.ch/">
   <link rel="icon" type="image/png" href="assets/img/logo-mark.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -19,7 +25,10 @@
     "@context": "https://schema.org",
     "@type": "BarOrPub",
     "name": "Himmellounge",
-    "image": "assets/img/rooftop.jpg",
+    "image": "https://www.himmellounge.ch/assets/img/rooftop.jpg",
+    "url": "https://www.himmellounge.ch/",
+    "servesCuisine": "Shisha, Drinks, Snacks",
+    "hasMenu": "https://yoordi.app/checkin/3810843414472434",
     "telephone": "+41767996969",
     "address": {"@type": "PostalAddress", "streetAddress": "Im Hölderli 10", "postalCode": "8405", "addressLocality": "Winterthur", "addressCountry": "CH"},
     "geo": {"@type": "GeoCoordinates", "latitude": 47.4926662, "longitude": 8.7621866},
@@ -34,6 +43,7 @@
   </script>
 </head>
 <body class="is-loading">
+  <a class="skip" href="#intro">Zum Inhalt springen</a>
 
   <!-- Preloader -->
   <div class="loader" aria-hidden="true">
@@ -72,7 +82,7 @@
     </div>
   </header>
 
-  <div class="menu" data-menu aria-hidden="true">
+  <div class="menu" data-menu aria-hidden="true" inert>
     <div class="menu__bg"></div>
     <nav class="menu__links">
       <a href="#erlebnis"><small>01</small>Erlebnis</a>
@@ -115,7 +125,7 @@
         </h1>
         <p class="hero__lead" data-hero-in>Prestige Shisha, Signature Drinks und feine Küche — auf der Terrasse hoch über der Stadt, mit Service, der den Abend trägt.</p>
         <div class="hero__ctas" data-hero-in>
-          <a href="#reservieren" class="btn btn--gold" data-magnetic><span>Tisch reservieren</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+          <a href="#reservieren" class="btn btn--gold" data-magnetic><span>Tisch reservieren</span><i class="btn__ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></i></a>
           <a href="https://yoordi.app/checkin/3810843414472434" target="_blank" rel="noopener" class="btn btn--shimmer" data-magnetic><span>Menü ansehen</span></a>
         </div>
       </div>
@@ -221,7 +231,7 @@
           <article class="card card--cta">
             <p class="eyebrow"><span class="line"></span>Bereit?</p>
             <h3>Dein Tisch<br><em>wartet oben.</em></h3>
-            <a href="#reservieren" class="btn btn--gold" data-magnetic><span>Jetzt reservieren</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+            <a href="#reservieren" class="btn btn--gold" data-magnetic><span>Jetzt reservieren</span><i class="btn__ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></i></a>
           </article>
 
         </div>
@@ -335,7 +345,7 @@
             <textarea id="f-msg" name="msg" rows="2" placeholder=" "></textarea>
             <label for="f-msg">Wunsch / Anlass (optional)</label>
           </div>
-          <button class="btn btn--gold btn--block" type="submit" data-magnetic><span>Anfrage via WhatsApp senden</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+          <button class="btn btn--gold btn--block" type="submit" data-magnetic><span>Anfrage via WhatsApp senden</span><i class="btn__ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></i></button>
           <p class="form__note" data-form-note aria-live="polite"></p>
         </form>
       </div>
