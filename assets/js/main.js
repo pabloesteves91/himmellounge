@@ -8,6 +8,7 @@
   const fine = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
   const hasGsap = typeof window.gsap !== "undefined";
   if (hasGsap && window.ScrollTrigger) gsap.registerPlugin(ScrollTrigger);
+  if (!hasGsap || !window.ScrollTrigger || reduced) document.documentElement.classList.add("no-gsap");
 
   /* ---------------- Opening hours ---------------- */
   // [open, close] in minutes since midnight; close may exceed 1440 (after midnight)
@@ -248,8 +249,21 @@
     gsap.to("[data-hero-media]", { yPercent: 18, ease: "none", scrollTrigger: { trigger: "[data-hero]", start: "top top", end: "bottom top", scrub: true } });
     gsap.to(".hero__content", { yPercent: -22, opacity: 0.1, ease: "none", scrollTrigger: { trigger: "[data-hero]", start: "top top", end: "bottom top", scrub: true } });
 
-    // rooftop parallax
-    gsap.fromTo("[data-parallax]", { yPercent: -12 }, { yPercent: 12, ease: "none", scrollTrigger: { trigger: ".rooftop", start: "top bottom", end: "bottom top", scrub: true } });
+    // Scroll Expansion (after 21st.dev @arunachalam/scroll-expansion-hero):
+    // instead of hijacking the wheel, the section is pinned and the progress is scroll-scrubbed.
+    const mobile = window.innerWidth < 768;
+    gsap.timeline({
+      scrollTrigger: { trigger: "[data-expand]", pin: "[data-expand-pin]", start: "top top", end: "+=130%", scrub: 0.6, anticipatePin: 1, refreshPriority: -1 },
+    })
+      .fromTo("[data-expand-media]",
+        { width: mobile ? 220 : 300, height: mobile ? 320 : 400, borderRadius: 18 },
+        { width: () => window.innerWidth, height: () => window.innerHeight, borderRadius: 0, ease: "power2.inOut" }, 0)
+      .to("[data-expand-bg]", { opacity: 0, ease: "none" }, 0)
+      .to("[data-expand-shade]", { opacity: 0.25, ease: "none" }, 0)
+      .to("[data-expand-l]", { xPercent: mobile ? -60 : -90, ease: "power2.in" }, 0)
+      .to("[data-expand-r]", { xPercent: mobile ? 60 : 90, ease: "power2.in" }, 0)
+      .to("[data-expand-hint]", { opacity: 0, duration: 0.2 }, 0)
+      .to(".expand__title", { opacity: 0, duration: 0.25 }, 0.75);
 
     // word-mask headings
     wordHeads.forEach(({ el, words }) => {
@@ -280,6 +294,29 @@
     window.addEventListener("load", () => ScrollTrigger.refresh());
   }
 
+  /* ---------------- Background Paths (after 21st.dev @kokonutd/background-paths) ---------------- */
+  $$("[data-paths]").forEach((host) => {
+    const NS = "http://www.w3.org/2000/svg";
+    const svg = document.createElementNS(NS, "svg");
+    svg.setAttribute("viewBox", "0 0 696 316");
+    svg.setAttribute("preserveAspectRatio", "xMidYMid slice");
+    [1, -1].forEach((position) => {
+      for (let i = 0; i < 36; i++) {
+        const o = (n) => n - i * 5 * position;
+        const d = `M${-o(380)} ${-(189 + i * 6)}C${-o(380)} ${-(189 + i * 6)} ${-o(312)} ${216 - i * 6} ${o(152)} ${343 - i * 6}C${o(616)} ${470 - i * 6} ${o(684)} ${875 - i * 6} ${o(684)} ${875 - i * 6}`;
+        const path = document.createElementNS(NS, "path");
+        path.setAttribute("d", d);
+        path.setAttribute("pathLength", "1");
+        path.setAttribute("stroke-width", (0.5 + i * 0.03).toFixed(2));
+        path.setAttribute("stroke-opacity", (0.06 + i * 0.012).toFixed(3));
+        path.style.setProperty("--d", `${20 + Math.random() * 10}s`);
+        path.style.animationDelay = `${-Math.random() * 20}s`;
+        svg.appendChild(path);
+      }
+    });
+    host.appendChild(svg);
+  });
+
   /* ---------------- Marquee speed follows scroll velocity ---------------- */
   const marquee = $("[data-marquee]");
   if (marquee && !reduced) {
@@ -295,7 +332,7 @@
 
   /* ---------------- Cursor ---------------- */
   if (fine && !reduced) {
-    const cur = $(".cursor"), dot = $(".cursor__dot"), ring = $(".cursor__ring"), label = $(".cursor__label");
+    const cur = $(".cursor"), dot = $(".cursor__dot"), ring = $(".cursor__ring");
     let mx = innerWidth / 2, my = innerHeight / 2, rx = mx, ry = my;
     window.addEventListener("mousemove", (e) => { mx = e.clientX; my = e.clientY; dot.style.transform = `translate(${mx}px, ${my}px) translate(-50%,-50%)`; }, { passive: true });
     (function follow() {
@@ -304,10 +341,9 @@
       requestAnimationFrame(follow);
     })();
     $$("a, button, [data-hover], .card, .pax button, .seg label").forEach((el) => {
-      el.addEventListener("mouseenter", () => { cur.classList.add("is-hover"); label.textContent = el.classList.contains("card") ? "Drag" : ""; });
+      el.addEventListener("mouseenter", () => cur.classList.add("is-hover"));
       el.addEventListener("mouseleave", () => cur.classList.remove("is-hover"));
     });
-    $$(".card").forEach((c) => c.addEventListener("mouseenter", () => (label.textContent = "")));
   }
 
   /* ---------------- Magnetic buttons ---------------- */

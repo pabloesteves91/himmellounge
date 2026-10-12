@@ -94,7 +94,7 @@
     <!-- HERO -->
     <section class="hero" data-hero>
       <div class="hero__media" data-hero-media>
-        <img src="assets/img/rooftop.jpg" alt="Die Rooftop-Terrasse der Himmellounge über Winterthur bei Sonnenuntergang" fetchpriority="high">
+        <img src="assets/img/sky.jpg" alt="" fetchpriority="high">
       </div>
       <canvas class="hero__stars" data-stars aria-hidden="true"></canvas>
       <canvas class="hero__smoke" data-smoke aria-hidden="true"></canvas>
@@ -228,15 +228,26 @@
       </div>
     </section>
 
-    <!-- ROOFTOP PARALLAX -->
-    <section class="rooftop" id="rooftop">
-      <div class="rooftop__media" data-parallax>
-        <img src="assets/img/sky.jpg" alt="" loading="lazy">
+    <!-- ROOFTOP — Scroll Expansion (port of 21st.dev @arunachalam/scroll-expansion-hero) -->
+    <section class="expand" id="rooftop" data-expand>
+      <div class="expand__pin" data-expand-pin>
+        <div class="expand__bg" data-expand-bg><img src="assets/img/sky.jpg" alt="" loading="lazy"></div>
+        <div class="expand__media" data-expand-media>
+          <img src="assets/img/rooftop.jpg" alt="Luftaufnahme der Rooftop-Terrasse mit Sonnenschirmen" loading="lazy">
+          <div class="expand__shade" data-expand-shade></div>
+        </div>
+        <h2 class="expand__title" aria-label="Näher am Himmel">
+          <span data-expand-l>Näher am</span>
+          <em data-expand-r>Himmel.</em>
+        </h2>
+        <p class="expand__hint" data-expand-hint>Scroll, um die Terrasse zu öffnen</p>
       </div>
-      <div class="rooftop__veil"></div>
+    </section>
+
+    <section class="rooftop" aria-labelledby="rooftop-h">
       <div class="container rooftop__inner">
         <p class="eyebrow reveal"><span class="line"></span>Die Terrasse</p>
-        <h2 class="display" data-split-words>Näher am Himmel<br><em>war Winterthur nie.</em></h2>
+        <h2 class="display" id="rooftop-h" data-split-words>Über Winterthur<br><em>war es nie schöner.</em></h2>
         <div class="rooftop__cols">
           <p class="reveal">Unsere Rooftop-Terrasse ist das Herz der Himmellounge. Sonnenuntergang zum ersten Zug, Sterne zum letzten Drink. Freitag und Samstag ist der Aussenbereich bis Mitternacht geöffnet.</p>
           <ul class="checks reveal">
@@ -253,7 +264,7 @@
       <div class="container hours__grid">
         <div>
           <p class="eyebrow reveal"><span class="line"></span>Öffnungszeiten</p>
-          <h2 class="h2 reveal">Jeden Tag<br><em>ab Sonnenuntergang.</em></h2>
+          <h2 class="h2 reveal">Sieben Abende<br><em>die Woche.</em></h2>
           <div class="live reveal" data-live>
             <span class="live__dot"></span>
             <div><b data-live-title>—</b><small data-live-sub></small></div>
@@ -274,6 +285,8 @@
     <!-- RESERVATION -->
     <section class="reserve" id="reservieren">
       <div class="reserve__aura" aria-hidden="true"></div>
+      <!-- Background Paths (port of 21st.dev @kokonutd/background-paths, MIT) -->
+      <div class="paths" data-paths aria-hidden="true"></div>
       <div class="container reserve__grid">
         <div class="reserve__copy">
           <p class="eyebrow reveal"><span class="line"></span>Reservation</p>
@@ -337,7 +350,7 @@
         </div>
         <div class="loc__info">
           <p class="eyebrow reveal"><span class="line"></span>Standort</p>
-          <h2 class="h2 reveal">Im Hölderli 10<br><em>8405 Winterthur</em></h2>
+          <h2 class="h2 h2--sm reveal">Im&nbsp;Hölderli&nbsp;10<br><em>8405 Winterthur</em></h2>
           <p class="reveal">Mitten in Winterthur-Grüze, gut erreichbar mit Auto und ÖV. Folge dem Licht nach oben.</p>
           <div class="loc__actions reveal">
             <a class="btn btn--ghost" data-magnetic target="_blank" rel="noopener" href="https://www.google.ch/maps/place/Im+H%C3%B6lderli+10,+8405+Winterthur/@47.4926662,8.7599979,17z"><span>Route planen</span></a>
